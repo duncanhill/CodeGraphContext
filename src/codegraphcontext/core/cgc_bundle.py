@@ -179,10 +179,21 @@ class CGCBundle:
                 info_logger(f"Loading bundle: {metadata.get('repo', 'unknown')}")
                 info_logger(f"Bundle version: {metadata.get('cgc_version', 'unknown')}")
                 
-                # Step 4: Clear existing data if requested
+                # Step 4: Handle existing data
+                repo_name = metadata.get('repo', 'unknown')
+                repo_path = metadata.get('repo_path')
+                
                 if clear_existing:
-                    info_logger("Clearing existing graph data...")
+                    # User explicitly wants to clear - remove everything
+                    info_logger("Clearing all existing graph data...")
                     self._clear_graph()
+                else:
+                    # Check if this repository already exists (only when NOT clearing)
+                    existing_repo = self._check_existing_repository(repo_name, repo_path)
+                    
+                    if existing_repo:
+                        return False, f"Repository '{repo_name}' already exists in the database. Use clear_existing=True to replace it."
+                
                 
                 # Step 5: Create schema
                 info_logger("Creating schema...")
@@ -583,6 +594,63 @@ cgc import <bundle-file>.cgc
             return False, f"Invalid metadata.json: {e}"
         
         return True, "Valid bundle"
+    
+    def _check_existing_repository(self, repo_name: str, repo_path: Optional[str]) -> bool:
+        """Check if a repository already exists in the database."""
+        with self.db_manager.get_driver().session() as session:
+            # Try to find by name first
+            result = session.run(
+                "MATCH (r:Repository {name: $name}) RETURN r LIMIT 1",
+                name=repo_name
+            )
+            if result.single():
+                return True
+            
+            # If repo_path is provided, also check by path
+            if repo_path:
+                result = session.run(
+                    "MATCH (r:Repository {path: $path}) RETURN r LIMIT 1",
+                    path=repo_path
+                )
+                if result.single():
+                    return True
+        
+        return False
+    
+    def _delete_repository(self, repo_identifier: str):
+        """Delete a specific repository and all its related nodes from the graph."""
+        with self.db_manager.get_driver().session() as session:
+            # First, try to find the repository by name or path
+            result = session.run("""
+                MATCH (r:Repository)
+                WHERE r.name = $identifier OR r.path = $identifier
+                RETURN r.path as path
+                LIMIT 1
+            """, identifier=repo_identifier)
+            
+            record = result.single()
+            if not record:
+                warning_logger(f"Repository '{repo_identifier}' not found for deletion")
+                return
+            
+            repo_path = record['path']
+            
+            # Delete all nodes that belong to this repository
+            # Files, Functions, Classes, Modules all have paths that start with repo_path
+            session.run("""
+                MATCH (n)
+                WHERE n.path STARTS WITH $repo_path
+                DETACH DELETE n
+            """, repo_path=repo_path)
+            
+            # Delete the repository node itself
+            session.run("""
+                MATCH (r:Repository)
+                WHERE r.path = $repo_path
+                DELETE r
+            """, repo_path=repo_path)
+            
+            info_logger(f"Deleted repository: {repo_identifier}")
     
     def _clear_graph(self):
         """Clear all nodes and relationships from the graph."""

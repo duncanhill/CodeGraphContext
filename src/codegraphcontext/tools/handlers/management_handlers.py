@@ -116,7 +116,8 @@ def list_jobs(job_manager: JobManager) -> Dict[str, Any]:
 def load_bundle(code_finder: CodeFinder, **args) -> Dict[str, Any]:
     """Tool to load a .cgc bundle into the database."""
     from pathlib import Path
-    from ...cli.registry_commands import load_bundle_command
+    from ...core.bundle_registry import BundleRegistry
+    from ...core.cgc_bundle import CGCBundle
     
     bundle_name = args.get("bundle_name")
     clear_existing = args.get("clear_existing", False)
@@ -127,22 +128,60 @@ def load_bundle(code_finder: CodeFinder, **args) -> Dict[str, Any]:
     try:
         debug_log(f"Loading bundle: {bundle_name}")
         
-        # Use the existing load_bundle_command from CLI
-        # This handles both local files and auto-download from registry
-        success, message, stats = load_bundle_command(
-            bundle_name=bundle_name,
+        # Check if bundle exists locally
+        bundle_path = Path(bundle_name)
+        
+        # If it doesn't exist as-is, try with .cgc extension
+        if not bundle_path.exists() and not str(bundle_name).endswith('.cgc'):
+            bundle_path = Path(f"{bundle_name}.cgc")
+        
+        if not bundle_path.exists():
+            # Try to download from registry
+            debug_log(f"Bundle {bundle_name} not found locally, checking registry...")
+            download_url, bundle_meta, error = BundleRegistry.find_bundle_download_info(bundle_name)
+            
+            if not download_url:
+                return {"error": f"Bundle not found locally or in registry: {bundle_name}. {error}"}
+            
+            # Determine output filename from metadata
+            filename = bundle_meta.get('bundle_name', f"{bundle_name}.cgc")
+            # Save to current working directory
+            target_path = Path.cwd() / filename
+            
+            debug_log(f"Downloading bundle to {target_path}...")
+            try:
+                BundleRegistry.download_file(download_url, target_path)
+                bundle_path = target_path
+                debug_log(f"Successfully downloaded to {bundle_path}")
+            except Exception as e:
+                return {"error": f"Failed to download bundle: {str(e)}"}
+            
+            # Verify the downloaded file exists
+            if not bundle_path.exists():
+                return {"error": f"Download completed but file not found at {bundle_path}"}
+
+        # Load the bundle using CGCBundle core class
+        bundle = CGCBundle(code_finder.db_manager)
+        success, message = bundle.import_from_bundle(
+            bundle_path=bundle_path,
             clear_existing=clear_existing
         )
         
         if success:
+            stats = {}
+            # Parse simple stats from message if possible, or just return success
+            if "Nodes:" in message:
+                 # Best effort parsing, not critical
+                 pass
+                 
             return {
                 "success": True,
                 "message": message,
                 "stats": stats
             }
         else:
-            return {"error": message}
-    
+             return {"error": message}
+
     except Exception as e:
         debug_log(f"Error loading bundle: {str(e)}")
         return {"error": f"Failed to load bundle: {str(e)}"}
@@ -150,7 +189,7 @@ def load_bundle(code_finder: CodeFinder, **args) -> Dict[str, Any]:
 
 def search_registry_bundles(code_finder: CodeFinder, **args) -> Dict[str, Any]:
     """Tool to search for bundles in the registry."""
-    from ...cli.registry_commands import fetch_available_bundles
+    from ...core.bundle_registry import BundleRegistry
     
     query = args.get("query", "").lower()
     unique_only = args.get("unique_only", False)
@@ -158,8 +197,8 @@ def search_registry_bundles(code_finder: CodeFinder, **args) -> Dict[str, Any]:
     try:
         debug_log(f"Searching registry for: {query}")
         
-        # Fetch all bundles from registry
-        bundles = fetch_available_bundles()
+        # Fetch directly from core registry
+        bundles = BundleRegistry.fetch_available_bundles()
         
         if not bundles:
             return {
