@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Download, Package, Calendar, HardDrive, Star, Loader2 } from 'lucide-react';
+import { Search, Download, Package, Calendar, HardDrive, Star, Loader2, ExternalLink } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Bundle {
@@ -239,7 +239,15 @@ const BundleRegistrySection = () => {
                                         <div className="flex-1">
                                             <CardTitle className="text-lg">{bundle.name}</CardTitle>
                                             <CardDescription className="text-sm mt-1">
-                                                {bundle.repo}
+                                                <a
+                                                    href={`https://github.com/${bundle.repo}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors underline underline-offset-2"
+                                                >
+                                                    {bundle.repo}
+                                                    <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                                                </a>
                                             </CardDescription>
                                         </div>
                                         {bundle.category && (
