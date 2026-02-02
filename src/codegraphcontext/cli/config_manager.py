@@ -61,7 +61,7 @@ CONFIG_DESCRIPTIONS = {
     "PARALLEL_WORKERS": "Number of parallel indexing workers",
     "CACHE_ENABLED": "Enable caching for faster re-indexing",
     "IGNORE_DIRS": "Comma-separated list of directory names to ignore during indexing",
-    "INDEX_SOURCE": "Store full source code in graph database (recommended false)",
+    "INDEX_SOURCE": "Store full source code in graph database (for faster indexing use false, for better performance use true)",
 }
 
 # Valid values for each config key
