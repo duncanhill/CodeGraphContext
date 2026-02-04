@@ -67,6 +67,12 @@ A powerful **MCP server** and **CLI toolkit** that indexes local code into a gra
 
 ## ✨ Experience CGC
 
+
+### 👨🏻‍💻 Installation and CLI
+> Install in seconds with pip and unlock a powerful CLI for code graph analysis.
+![Install and unlock the CLI instantly](https://github.com/CodeGraphContext/CodeGraphContext/blob/main/images/install&cli.gif)
+
+
 ### 🛠️ Indexing in Seconds
 > The CLI intelligently parses your tree-sitter nodes to build the graph.
 ![Indexing using an MCP client](https://github.com/CodeGraphContext/CodeGraphContext/blob/main/images/Indexing.gif)
