@@ -280,7 +280,16 @@ const BundleGeneratorSection = () => {
                                         <strong>Generated:</strong> {new Date(generationStatus.bundle.generated_at).toLocaleDateString()}
                                     </div>
                                     <div>
-                                        <strong>Commit:</strong> {generationStatus.bundle.commit}
+                                      <strong>Commit:</strong>{' '}
+                                      <a
+                                        href={`https://github.com/${generationStatus.repository}/commit/${generationStatus.bundle.commit}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="font-mono text-purple-500 hover:underline inline-flex items-center gap-1"
+                                      >
+                                      {generationStatus.bundle.commit}
+                                      <ExternalLink className="h-3 w-3" />
+                                        </a>
                                     </div>
                                 </div>
                             )}

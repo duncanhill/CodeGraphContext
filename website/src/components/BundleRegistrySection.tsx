@@ -288,9 +288,20 @@ const BundleRegistrySection = () => {
                                         {bundle.version && (
                                             <Badge variant="secondary">v{bundle.version}</Badge>
                                         )}
-                                        <Badge variant="secondary" className="font-mono">
-                                            {bundle.commit}
-                                        </Badge>
+                                        <a href={`https://github.com/${bundle.repo}/commit/${bundle.commit}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1"
+                                        >
+                                       <Badge
+                                       variant="secondary"
+                                       className="font-mono cursor-pointer hover:bg-muted"
+                                        >
+                                       {bundle.commit}
+                                       <ExternalLink className="h-3 w-3 ml-1" />
+                                       </Badge>
+                                       </a>
+
                                     </div>
 
                                     {/* Download Button */}
