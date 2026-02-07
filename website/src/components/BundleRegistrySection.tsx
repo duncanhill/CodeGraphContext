@@ -160,7 +160,7 @@ const BundleRegistrySection = () => {
     const categories = ['all', ...new Set(bundles.map(b => b.category).filter(Boolean))];
 
     return (
-        <section className="py-20 px-4">
+        <section id="bundle-registry" className="py-20 px-4">
             <div className="container mx-auto max-w-7xl">
                 {/* Header */}
                 <div className="text-center mb-12" data-aos="fade-up">
