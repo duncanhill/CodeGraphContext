@@ -2047,9 +2047,12 @@ def cypher_legacy(query: str = typer.Argument(..., help="The read-only Cypher qu
 # ============================================================================
 
 @app.command("i", rich_help_panel="Shortcuts")
-def index_abbrev(path: Optional[str] = typer.Argument(None, help="Path to index")):
+def index_abbrev(
+    path: Optional[str] = typer.Argument(None, help="Path to index"),
+    force: bool = typer.Option(False, "--force", "-f", help="Force re-index (delete existing and rebuild)")
+):
     """Shortcut for 'cgc index'"""
-    index(path)
+    index(path, force=force)
 
 @app.command("ls", rich_help_panel="Shortcuts")
 def list_abbrev():
