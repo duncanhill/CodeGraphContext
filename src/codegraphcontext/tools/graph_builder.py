@@ -909,6 +909,33 @@ class GraphBuilder:
             all_files = path.rglob("*") if path.is_dir() else [path]
             files = [f for f in all_files if f.is_file() and f.suffix in supported_extensions]
 
+            # --- SCIP Integration ---
+            print(f"DEBUG: Processing directory {path}. Checking SCIP support...")
+            if path.is_dir():
+                from .scip_indexer import ScipIndexer
+                scip_indexer = ScipIndexer()
+                
+                using_scip = scip_indexer.should_use_scip("python")
+                print(f"DEBUG: should_use_scip('python') -> {using_scip}")
+                
+                # Check for Python support
+                if using_scip:
+                    # Check if there are python files to index
+                    has_py = any(f.suffix == '.py' for f in files)
+                    print(f"DEBUG: has_py -> {has_py}")
+                    if has_py:
+                        info_logger("Attempting SCIP indexing for Python...")
+                        try:
+                            index = scip_indexer.run_index(path)
+                            if index:
+                                scip_indexer.ingest_index(self.driver, index, path)
+                                info_logger("SCIP indexing complete. Skipping Tree-sitter for Python files.")
+                                # Remove Python files from standard processing to avoid duplication
+                                files = [f for f in files if f.suffix != '.py']
+                        except Exception as e:
+                            error_logger(f"SCIP indexing failed, falling back to Tree-sitter: {e}")
+            # ------------------------
+
             # Filter default ignored directories
             ignore_dirs_str = get_config_value("IGNORE_DIRS") or ""
             if ignore_dirs_str and path.is_dir():
@@ -973,6 +1000,9 @@ class GraphBuilder:
                 self.job_manager.update_job(job_id, status=JobStatus.COMPLETED, end_time=datetime.now())
         except Exception as e:
             error_message=str(e)
+            print(f"CRITICAL ERROR IN GRAPH BUILDER: {e}")
+            import traceback
+            traceback.print_exc()
             error_logger(f"Failed to build graph for path {path}: {error_message}")
             if job_id:
                 '''checking if the repo got deleted '''

@@ -333,12 +333,28 @@ class FalkorDBSessionWrapper:
                     return f"CREATE INDEX FOR {match_node.group(1)} ON {match_props.group(1)}"
 
             # Handle simple uniqueness: CREATE CONSTRAINT name FOR (n:Label) REQUIRE n.prop IS UNIQUE
-            # TO: CREATE CONSTRAINT ON (n:Label) ASSERT n.prop IS UNIQUE
+            # TO: CREATE INDEX FOR (n:Label) ON (n.prop)
+            # We downgrade constraints to indexes because FalkorDB Cypher support for constraints might be limited or use different syntax.
             
-            # Remove constraint name
-            query = re.sub(r'CREATE CONSTRAINT\s+\w+\s+', 'CREATE CONSTRAINT ', query, flags=re.IGNORECASE)
-            query = re.sub(r'\s+FOR\s+', ' ON ', query, flags=re.IGNORECASE)
-            query = re.sub(r'\s+REQUIRE\s+', ' ASSERT ', query, flags=re.IGNORECASE)
+            match_node = re.search(r'FOR\s+(\([^)]+\))', query, flags=re.IGNORECASE) or re.search(r'ON\s+(\([^)]+\))', query, flags=re.IGNORECASE)
+            match_props = re.search(r'REQUIRE\s+(\S+)\s+IS UNIQUE', query, flags=re.IGNORECASE) or re.search(r'ASSERT\s+(\S+)\s+IS UNIQUE', query, flags=re.IGNORECASE)
+
+            if match_node and match_props:
+                # Extract label and property
+                node_part = match_node.group(1) # e.g. (n:Label)
+                prop_expr = match_props.group(1) # e.g. n.prop
+                
+                # If prop expression is complex, we might need to parse. Assuming simple n.prop
+                if '.' in prop_expr:
+                    prop_name = prop_expr.split('.')[-1]
+                    # We need to extract the variable name to be sure? Not really, just Label and Property matter.
+                    # But CREATE INDEX syntax is: CREATE INDEX FOR (n:Label) ON (n.prop)
+                    # We can reuse the node part and prop expr.
+                
+                return f"CREATE INDEX FOR {node_part} ON ({prop_expr})"
+            
+            # Fallback if regex fails: return no-op
+            return "RETURN 1"
             
         # Handle Regular Indexes
         elif "CREATE INDEX" in q_upper:

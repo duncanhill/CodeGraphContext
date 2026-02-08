@@ -1,0 +1,1 @@
+import sys; sys.path.append('src'); from codegraphcontext.tools.graph_builder import TreeSitterParser; from pathlib import Path; p = TreeSitterParser('python'); data = p.parse(Path('test_scip.py')); print(data)
