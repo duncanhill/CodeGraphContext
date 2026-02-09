@@ -209,7 +209,7 @@ Use CodeGraphContext as a **powerful command-line toolkit** for code analysis:
 
 #### 🤖 Mode 2: MCP Server (AI-Powered)
 Use CodeGraphContext as an **MCP server** for AI assistants:
-- Connect to AI IDEs (VS Code, Cursor, Windsurf, Claude, etc.)
+- Connect to AI IDEs (VS Code, Cursor, Windsurf, Claude, Kiro, etc.)
 - Let AI agents query your codebase using natural language
 - Automatic code understanding and relationship analysis
 - Perfect for AI-assisted development workflows
@@ -309,6 +309,7 @@ cgc help
     *   Cline
     *   RooCode
     *   Amazon Q Developer
+    *   Kiro
 
     Upon successful configuration, `cgc mcp setup` will generate and place the necessary configuration files:
     *   It creates an `mcp.json` file in your current directory for reference.
