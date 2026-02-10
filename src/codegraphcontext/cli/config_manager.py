@@ -39,6 +39,8 @@ DEFAULT_CONFIG = {
     "CACHE_ENABLED": "true",
     "IGNORE_DIRS": "node_modules,venv,.venv,env,.env,dist,build,target,out,.git,.idea,.vscode,__pycache__",
     "INDEX_SOURCE": "true",
+    "INDEXING_METHOD": "tree-sitter",
+    "SCIP_ENABLED_LANGUAGES": "python",
 }
 
 # Configuration key descriptions
@@ -62,6 +64,8 @@ CONFIG_DESCRIPTIONS = {
     "CACHE_ENABLED": "Enable caching for faster re-indexing",
     "IGNORE_DIRS": "Comma-separated list of directory names to ignore during indexing",
     "INDEX_SOURCE": "Store full source code in graph database (for faster indexing use false, for better performance use true)",
+    "INDEXING_METHOD": "Method used for indexing code (tree-sitter|scip|auto)",
+    "SCIP_ENABLED_LANGUAGES": "Comma-separated list of languages to use SCIP indexer for (e.g. python,typescript,go)",
 }
 
 # Valid values for each config key
@@ -76,6 +80,7 @@ CONFIG_VALIDATORS = {
     "ENABLE_AUTO_WATCH": ["true", "false"],
     "CACHE_ENABLED": ["true", "false"],
     "INDEX_SOURCE": ["true", "false"],
+    "INDEXING_METHOD": ["tree-sitter", "scip", "auto"],
 }
 
 

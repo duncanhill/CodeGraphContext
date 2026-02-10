@@ -67,3 +67,7 @@ markers = [
     "e2e: mark a test as an end-to-end test.",
     "slow: mark test as slow."
 ]
+
+[tool.pyright]
+include = ["src", "."]
+pythonVersion = "3.10"
