@@ -149,11 +149,20 @@ class GraphBuilder:
                 session.run("CREATE INDEX function_lang IF NOT EXISTS FOR (f:Function) ON (f.lang)")
                 session.run("CREATE INDEX class_lang IF NOT EXISTS FOR (c:Class) ON (c.lang)")
                 session.run("CREATE INDEX annotation_lang IF NOT EXISTS FOR (a:Annotation) ON (a.lang)")
-                session.run("""
-                    CREATE FULLTEXT INDEX code_search_index IF NOT EXISTS 
-                    FOR (n:Function|Class|Variable) 
-                    ON EACH [n.name, coalesce(n.source, ''), coalesce(n.docstring, '')]
-                """ )
+                is_falkordb = getattr(self.db_manager, 'get_backend_type', lambda: 'neo4j')() != 'neo4j'
+                if is_falkordb:
+                    # FalkorDB uses db.idx.fulltext.createNodeIndex per label
+                    for label in ['Function', 'Class']:
+                        try:
+                            session.run(f"CALL db.idx.fulltext.createNodeIndex('{label}', 'name', 'source', 'docstring')")
+                        except Exception:
+                            pass  # Index may already exist
+                else:
+                    session.run("""
+                        CREATE FULLTEXT INDEX code_search_index IF NOT EXISTS
+                        FOR (n:Function|Class|Variable)
+                        ON EACH [n.name, coalesce(n.source, ''), coalesce(n.docstring, '')]
+                    """)
                 
                 info_logger("Database schema verified/created successfully")
             except Exception as e:
