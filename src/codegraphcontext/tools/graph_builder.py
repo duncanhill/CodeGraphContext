@@ -105,6 +105,7 @@ class GraphBuilder:
             '.cpp': TreeSitterParser('cpp'),
             '.h': TreeSitterParser('cpp'),
             '.hpp': TreeSitterParser('cpp'),
+            '.hh': TreeSitterParser('cpp'),
             '.rs': TreeSitterParser('rust'),
             '.c': TreeSitterParser('c'),
             # '.h': TreeSitterParser('c'), # Need to write an algo for distinguishing C vs C++ headers
@@ -218,6 +219,9 @@ class GraphBuilder:
         if '.hpp' in files_by_lang:
             from .languages import cpp as cpp_lang_module
             imports_map.update(cpp_lang_module.pre_scan_cpp(files_by_lang['.hpp'], self.parsers['.hpp']))
+        if '.hh' in files_by_lang:
+            from .languages import cpp as cpp_lang_module
+            imports_map.update(cpp_lang_module.pre_scan_cpp(files_by_lang['.hh'], self.parsers['.hh']))
         if '.rs' in files_by_lang:
             from .languages import rust as rust_lang_module
             imports_map.update(rust_lang_module.pre_scan_rust(files_by_lang['.rs'], self.parsers['.rs']))
