@@ -140,7 +140,7 @@ def _configure_ide(mcp_config):
     questions = [
         {
             "type": "confirm",
-            "message": "Automatically configure your IDE/CLI (VS Code, Cursor, Windsurf, Claude, Gemini, Cline, RooCode, ChatGPT Codex, Amazon Q Developer, Aider, Kiro)?",
+            "message": "Automatically configure your IDE/CLI (VS Code, Cursor, Windsurf, Claude, Gemini, Cline, RooCode, ChatGPT Codex, Amazon Q Developer, Aider, Kiro, Antigravity)?",
             "name": "configure_ide",
             "default": True,
         }
@@ -154,7 +154,7 @@ def _configure_ide(mcp_config):
         {
             "type": "list",
             "message": "Choose your IDE/CLI to configure:",
-            "choices": ["VS Code", "Cursor", "Windsurf", "Claude code", "Gemini CLI", "ChatGPT Codex", "Cline", "RooCode", "Amazon Q Developer", "JetBrainsAI", "Aider", "Kiro", "None of the above"],
+            "choices": ["VS Code", "Cursor", "Windsurf", "Claude code", "Gemini CLI", "ChatGPT Codex", "Cline", "RooCode", "Amazon Q Developer", "JetBrainsAI", "Aider", "Kiro", "Antigravity", "None of the above"],
             "name": "ide_choice",
         }
     ]
@@ -166,7 +166,7 @@ def _configure_ide(mcp_config):
         return
 
 
-    if ide_choice in ["VS Code", "Cursor/CLI", "Claude code", "Gemini CLI", "ChatGPT Codex", "Cline", "Windsurf", "RooCode", "Amazon Q Developer , JetBrainsAI", "Aider", "Kiro"]:
+    if ide_choice in ["VS Code", "Cursor", "Claude code", "Gemini CLI", "ChatGPT Codex", "Cline", "Windsurf", "RooCode", "Amazon Q Developer", "JetBrainsAI", "Aider", "Kiro", "Antigravity"]:
         console.print(f"\n[bold cyan]Configuring for {ide_choice}...[/bold cyan]")
 
         if ide_choice == "Amazon Q Developer":
@@ -229,6 +229,11 @@ def _configure_ide(mcp_config):
                 Path.home() / ".kiro" / "settings" / "mcp.json",                                   # macOS / Linux / Windows (user-level global)
                 Path.home() / ".config" / "kiro" / "settings" / "mcp.json",                         # Linux (XDG config)
                 Path.home() / "AppData" / "Roaming" / "Kiro" / "settings" / "mcp.json",             # Windows
+            ],
+            "Antigravity": [
+                Path.home() / ".antigravity" / "mcp_settings.json",                                # macOS / Linux / Windows (user-level global)
+                Path.home() / ".config" / "antigravity" / "mcp_settings.json",                     # Linux (XDG config)
+                Path.home() / "AppData" / "Roaming" / "Antigravity" / "mcp_settings.json",         # Windows
             ]
         }
 
