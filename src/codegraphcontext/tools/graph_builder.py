@@ -74,6 +74,12 @@ class TreeSitterParser:
         elif self.language_name == 'haskell':
             from .languages.haskell import HaskellTreeSitterParser
             self.language_specific_parser = HaskellTreeSitterParser(self)
+        elif self.language_name == 'elixir':
+            from .languages.elixir import ElixirTreeSitterParser
+            self.language_specific_parser = ElixirTreeSitterParser(self)
+        elif self.language_name == 'heex':
+            from .languages.heex import HeexTreeSitterParser
+            self.language_specific_parser = HeexTreeSitterParser(self)
 
 
 
@@ -120,6 +126,9 @@ class GraphBuilder:
             '.sc': TreeSitterParser('scala'),
             '.swift': TreeSitterParser('swift'),
             '.hs': TreeSitterParser('haskell'),
+            '.ex': TreeSitterParser('elixir'),
+            '.exs': TreeSitterParser('elixir'),
+            '.heex': TreeSitterParser('heex'),
         }
         self.create_schema()
 
@@ -249,6 +258,15 @@ class GraphBuilder:
         if '.swift' in files_by_lang:
             from .languages import swift as swift_lang_module
             imports_map.update(swift_lang_module.pre_scan_swift(files_by_lang['.swift'], self.parsers['.swift']))
+        if '.ex' in files_by_lang:
+            from .languages import elixir as elixir_lang_module
+            imports_map.update(elixir_lang_module.pre_scan_elixir(files_by_lang['.ex'], self.parsers['.ex']))
+        if '.exs' in files_by_lang:
+            from .languages import elixir as elixir_lang_module
+            imports_map.update(elixir_lang_module.pre_scan_elixir(files_by_lang['.exs'], self.parsers['.exs']))
+        if '.heex' in files_by_lang:
+            from .languages import heex as heex_lang_module
+            imports_map.update(heex_lang_module.pre_scan_heex(files_by_lang['.heex'], self.parsers['.heex']))
             
         return imports_map
 
