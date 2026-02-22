@@ -51,6 +51,12 @@ LANGUAGE_ALIASES = {
     ".scala": "scala",
     "swift": "swift",
     ".swift": "swift",
+    "elixir": "elixir",
+    "ex": "elixir",
+    ".ex": "elixir",
+    ".exs": "elixir",
+    "heex": "heex",
+    ".heex": "heex",
 }
 
 
